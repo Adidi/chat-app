@@ -1,9 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-
-const Root = () => {
-    const v = 'This is react';
-    return <div>{v}</div>;
-};
+import Root from './components/root';
 
 ReactDOM.render(<Root />, document.getElementById('root'));
+
+if (module.hot) {
+    module.hot.accept();
+}
