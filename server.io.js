@@ -7,9 +7,14 @@ export default app => {
 
     io.on('connection', socket => {
         console.log(`${socket.id} connected`);
-        socket.join('room 237', () => {
-            let rooms = Object.keys(socket.rooms);
-            console.log(rooms); // [ <socket.id>, 'room 237' ]
+        io.send(`hello to ${socket.id}`);
+
+        socket.on('disconnect', () => {
+            console.log(`${socket.id} disconnected...`);
+        });
+
+        socket.on('pp', () => {
+            io.send(`Send from ${socket.id} ${Date.now()}`);
         });
     });
 
