@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import getSocket from '@c/util/socket';
+import getSocket from '@c/socket';
 
 const useSocket = () => {
     const [events, setEvents] = useState({});
@@ -23,7 +23,9 @@ const useSocket = () => {
         socket.on(eventName, eventCallback);
     };
 
-    return on;
+    const emit = (eventName, ...args) => socket.emit(eventName, ...args);
+
+    return [on, emit];
 };
 
 export default useSocket;
