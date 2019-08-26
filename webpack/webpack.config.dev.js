@@ -7,6 +7,7 @@ const baseConfig = require('./webpack.config.base');
 
 module.exports = webpackMerge(baseConfig(false), {
     mode: 'development',
+    devtool: 'source-map',
     output: {
         path: '/public',
         publicPath: '/',

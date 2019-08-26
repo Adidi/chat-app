@@ -25,7 +25,7 @@ const useSocket = () => {
 
     const emit = (eventName, ...args) => socket.emit(eventName, ...args);
 
-    return [on, emit];
+    return { on, emit };
 };
 
 export default useSocket;

@@ -1,17 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { useSocket } from '@c/hooks';
+import React from 'react';
 
 const ChatRoom = ({ room }) => {
-    const [messages, setMessages] = useState([]);
-    const on = useSocket();
-
-    useEffect(() => {
-        on('message', msg => {
-            setMessages([...messages, msg]);
-        });
-    }, []);
-
-    return messages.map(message => <div>{message}</div>);
+    return room.messages.map(message => (
+        <div key={message.id}>{message.msg}</div>
+    ));
 };
 
-export default ChatRoom;
+export default React.memo(ChatRoom);

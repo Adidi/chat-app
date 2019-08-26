@@ -1,10 +1,11 @@
 import { useCallback } from 'react';
 import ldReduce from 'lodash/reduce';
-import useState from './use-state';
 import * as actions from '@c/reducers/actions';
+import useStore from './use-store';
+
 
 const useActions = () => {
-    const [, dispatch] = useState();
+    const [, dispatch] = useStore();
 
     // make of all the actions execute functions using dispatch
     return ldReduce(

@@ -1,0 +1,159 @@
+{
+    "env": {
+        "node": true,
+        "es6": true,
+        "jest": true,
+        "browser": true
+    },
+    "globals": {
+        "__DEV__": false,
+        "requestAnimationFrame": false,
+        "fetch": false,
+        "atob": false,
+        "btoa": false,
+        "$PropertyType": true,
+        "Generator": true,
+        "navigator": true
+    },
+    "parser": "babel-eslint",
+    "extends": [
+        "eslint:recommended",
+        "airbnb",
+        "prettier",
+        "plugin:react/recommended",
+        "plugin:import/errors",
+        "plugin:import/warnings"
+    ],
+    "parserOptions": {
+        "ecmaVersion": 6,
+        "ecmaFeatures": {
+            "experimentalObjectRestSpread": true,
+            "jsx": true
+        },
+        "sourceType": "module"
+    },
+    "plugins": ["react", "import", "jsx-a11y"],
+    "rules": {
+        "indent": "off",
+        "react/jsx-indent": ["error", 4],
+        "react/jsx-indent-props": ["error", 4],
+        "no-unused-vars": [
+            "warn",
+            {
+                "vars": "all",
+                "args": "none",
+                "ignoreRestSiblings": true
+            }
+        ],
+        "no-restricted-properties": [
+            "error",
+            {
+                "object": "console",
+                "property": "dir",
+                "message": "Usage of `console.dir()` may lead to crashes in release environment"
+            }
+        ],
+        "import/no-unresolved": [
+            "error",
+            {
+                "ignore": ["\\.png$"]
+            }
+        ],
+        "import/no-extraneous-dependencies": [
+            "error",
+            {
+                "devDependencies": true
+            }
+        ],
+        "react/prop-types": [
+            "error",
+            {
+                "ignore": [
+                    "children",
+                    "style",
+                    "navigation",
+                    "onResponderGrant",
+                    "testID",
+                    "safePromise",
+                    "theme"
+                ],
+                "customValidators": [],
+                "skipUndeclared": false
+            }
+        ],
+        "no-else-return": "off",
+        "import/order": [
+            "error",
+            {
+                "newlines-between": "ignore",
+                "groups": [
+                    "builtin",
+                    "external",
+                    "internal",
+                    "parent",
+                    "sibling",
+                    "index"
+                ]
+            }
+        ],
+        // warnings temporarily
+        "react/no-access-state-in-setstate": "warn",
+        "react/no-unused-state": "warn",
+        // temporarily disabled rules
+        "jsx-a11y/anchor-is-valid": "off",
+        "react/jsx-closing-tag-location": "off",
+        "react/jsx-one-expression-per-line": "off",
+        "react/jsx-wrap-multilines": "off",
+        "no-restricted-globals": "off",
+        "lines-between-class-members": "off",
+        "prefer-destructuring": "off",
+        "react/destructuring-assignment": "off",
+        "no-inner-declarations": "off",
+        "camelcase": "off",
+        "class-methods-use-this": "off",
+        "max-len": "off",
+        "no-mixed-operators": "off",
+        "no-restricted-syntax": "off",
+        "no-shadow": "off",
+        "no-underscore-dangle": "off",
+        "react/forbid-prop-types": "off",
+        "react/jsx-filename-extension": "off",
+        "react/no-array-index-key": "off",
+        "react/no-did-mount-set-state": "off",
+        "react/no-unescaped-entities": "off",
+        "react/no-unused-prop-types": "off",
+        "no-nested-ternary": "off",
+        "react/prefer-stateless-function": "off",
+        "react/require-default-props": "off",
+        "react/sort-comp": "off",
+        "react/jsx-space-before-closing": "off",
+        "no-console": "off",
+        "no-plusplus": "off",
+        "no-param-reassign": [
+            "error",
+            {
+                "props": false
+            }
+        ],
+        "no-constant-condition": [
+            "error",
+            {
+                "checkLoops": false
+            }
+        ],
+        "prefer-rest-params": "off",
+        "import/prefer-default-export": ["off"],
+        "no-confusing-arrow": ["off"],
+        "react/display-name": ["off"],
+        "import/no-cycle": ["error"],
+        "guard-for-in": "off"
+    },
+    "settings": {
+        "import/resolver": {
+            "babel-module": {},
+            "node": {
+                "extensions": [".js", ".android.js", ".ios.js"]
+            }
+        }
+    }
+}

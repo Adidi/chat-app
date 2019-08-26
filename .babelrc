@@ -18,6 +18,15 @@
                 "libraryDirectory": "es",
                 "style": "css"
             }
+        ],
+        [
+            "module-resolver",
+            {
+                "root": ["."],
+                "alias": {
+                    "@c": "./src"
+                }
+            }
         ]
     ]
 }

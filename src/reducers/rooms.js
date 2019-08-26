@@ -1,40 +1,72 @@
+import shortid from 'shortid';
 import { createReducer } from '@c/util/reducer';
-import { INIT, NEW_USER, USER_DISCONNECT } from './actions';
+import { INIT, SEND_MESSAGE, JOIN_ROOM, LEAVE_ROOM } from './actions';
 
-const roomUsers = createReducer({
-    [NEW_USER](state, action) {
-        return [...state, action.user.id];
-    },
-    [USER_DISCONNECT](state, action) {
-        return state.filter(userId => userId !== action.id);
-    },
-});
+const createMessage = (msg, from) => ({ id: shortid.generate(), msg, from });
+
+const joinLeaveCreateMessages = (currentUser, room, msg, defaultValue) => {
+    const notify = !currentUser && room.active;
+    return notify ? [...room.messages, createMessage(msg)] : defaultValue;
+};
 
 export default createReducer({
     [INIT](state, action) {
-        return state.map(room => ({
+        return state.map((room, i) => ({
             ...room,
-            active: true,
+            active: i === 0,
             messages: [],
         }));
     },
-    [NEW_USER](state, action) {
-        return state.map((room, i) => {
-            if (i === 0) {
+    [SEND_MESSAGE](state, action) {
+        return state.map(room => {
+            if (action.toRoomId === room.id) {
                 return {
                     ...room,
-                    users: roomUsers(room.users, action),
+                    messages: [
+                        ...room.messages,
+                        createMessage(action.msg, action.fromUserId),
+                    ],
                 };
             }
             return room;
         });
     },
-    [USER_DISCONNECT](state, action) {
+    [JOIN_ROOM](state, action) {
         return state.map(room => {
-            return {
-                ...room,
-                users: roomUsers(room.users, action),
-            };
+            if (room.id === action.roomId) {
+                return {
+                    ...room,
+                    active: action.currentUser ? true : room.active,
+                    users: [...room.users, action.user.id],
+                    messages: joinLeaveCreateMessages(
+                        action.currentUser,
+                        room,
+                        `${action.user.name} join the room.`,
+                        room.messages,
+                    ),
+                };
+            }
+
+            return room;
+        });
+    },
+    [LEAVE_ROOM](state, action) {
+        return state.map(room => {
+            if (room.id === action.roomId) {
+                return {
+                    ...room,
+                    active: action.currentUser ? false : room.active,
+                    users: room.users.filter(uid => uid !== action.user.id),
+                    messages: joinLeaveCreateMessages(
+                        action.currentUser,
+                        room,
+                        `${action.user.name} left the room.`,
+                        [],
+                    ),
+                };
+            }
+
+            return room;
         });
     },
 });

@@ -1,35 +1,68 @@
-import React, { useContext } from 'react';
+import React, { useState } from 'react';
 import { Tabs, Button, Input, Row, Col } from 'antd';
-import { Layout, Header, Side } from './layout.style';
-import { useState } from '@c/hooks';
+import { useStore, useActions, useActionsNotify } from '@c/hooks';
 import UsersList from '../users-list';
+import RoomsList from '../rooms-list';
+import ChatRoom from '../chat/chat-room';
+import { AppLayout, Header, Side } from './layout.style';
 
-const { Content, Footer } = Layout;
+const { Content, Footer } = AppLayout;
 const { TabPane } = Tabs;
 
-const AppLayout = () => {
-    const [state, dispatch] = useState();
-    if (!state.me) {
-        return null;
-    }
+const Layout = () => {
+    const [msg, setMsg] = useState('');
+    const [state] = useStore();
+    const { changeRoom } = useActions();
+    const { sendMessageAndNotify, leaveRoomAndNotify } = useActionsNotify();
+    const { me, currentRoom, rooms } = state;
+
     return (
-        <Layout>
-            <Layout>
-                <Header>Welcome {state.me.name}</Header>
+        <AppLayout>
+            <AppLayout>
+                <Header>Welcome {me.name}</Header>
                 <Content>
-                    <Tabs defaultActiveKey="1" type="card">
-                        <TabPane tab="Tab 1" key="1"></TabPane>
+                    <Tabs
+                        hideAdd
+                        activeKey={currentRoom}
+                        type="editable-card"
+                        onChange={changeRoom}
+                        onEdit={(roomId, action) => {
+                            if (action === 'remove') {
+                                leaveRoomAndNotify(me, roomId);
+                            }
+                        }}
+                    >
+                        {rooms
+                            .filter(room => room.active)
+                            .map((room, i) => (
+                                <TabPane
+                                    closable={i !== 0}
+                                    tab={room.name}
+                                    key={room.id}
+                                >
+                                    <ChatRoom room={room} />
+                                </TabPane>
+                            ))}
                     </Tabs>
                 </Content>
                 <Footer>
                     <Row type="flex">
-                        <Col span="20">
-                            <Input placeholder="Start chatting..." />
+                        <Col span={23}>
+                            <Input
+                                placeholder="Start chatting..."
+                                value={msg}
+                                onChange={e => setMsg(e.target.value)}
+                            />
                         </Col>
-                        <Col span="4">
+                        <Col span={1}>
                             <Button
                                 onClick={() => {
-                                    document.body.style.direction = 'rtl';
+                                    sendMessageAndNotify(
+                                        me.id,
+                                        currentRoom,
+                                        msg,
+                                    );
+                                    setMsg('');
                                 }}
                             >
                                 Send
@@ -37,12 +70,13 @@ const AppLayout = () => {
                         </Col>
                     </Row>
                 </Footer>
-            </Layout>
+            </AppLayout>
             <Side breakpoint="md" collapsedWidth="0" width={300}>
                 <UsersList />
+                <RoomsList />
             </Side>
-        </Layout>
+        </AppLayout>
     );
 };
 
-export default AppLayout;
+export default Layout;

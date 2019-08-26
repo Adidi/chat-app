@@ -1,33 +1,42 @@
 import React from 'react';
 import size from 'lodash/size';
-import { List, Button } from 'antd';
-import { useState } from '@c/hooks';
-import { Header } from './users-list.style';
+import { Button } from 'antd';
+import { useStore, useSocket, useActionsNotify, useActions } from '@c/hooks';
+import { Header, SList } from '../list.style';
 
 const UsersList = () => {
-    const [state] = useState();
+    const [state] = useStore();
+    const { startPrivateChat } = useActions();
+    const { emit } = useSocket();
 
-    console.log('state', state);
-    const { rooms, users, me } = state;
-    if (!rooms[0]) {
-        return null;
-    }
+    const { rooms, users, currentRoom } = state;
 
-    const { users: roomUsers } = rooms[0];
-    const filteredUsers = roomUsers.filter(user => user !== me.id);
+    const room = rooms.find(r => r.id === currentRoom);
 
     return (
-        <List
-            header={<Header>Users ({size(users) - 1})</Header>}
-            bordered
-            dataSource={filteredUsers}
-            renderItem={item => (
-                <List.Item>
-                    {users[item].name}
-                    <Button size="small">Private</Button>
-                </List.Item>
-            )}
-        />
+        <>
+            <Header>Users ({size(room.users)})</Header>
+            <SList
+                bordered
+                dataSource={room.users}
+                renderItem={userId => {
+                    const user = users[userId];
+                    return (
+                        <SList.Item>
+                            {user.name}
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    emit('startPrivateChat', user);
+                                }}
+                            >
+                                Private
+                            </Button>
+                        </SList.Item>
+                    );
+                }}
+            />
+        </>
     );
 };
 

@@ -2,7 +2,6 @@ const path = require('path');
 const webpackMerge = require('webpack-merge');
 const HtmlWebPackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-//const ProgressBarPlugin = require('progress-bar-webpack-plugin');
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const baseConfig = require('./webpack.config.base');
 
