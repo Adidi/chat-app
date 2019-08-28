@@ -1,24 +1,23 @@
 import React from 'react';
-import size from 'lodash/size';
 import { Button } from 'antd';
-import { useStore, useSocket, useActionsNotify, useActions } from '@c/hooks';
+import { useStore, useSocket } from '@c/hooks';
 import { Header, SList } from '../list.style';
 
 const UsersList = () => {
     const [state] = useStore();
-    const { startPrivateChat } = useActions();
     const { emit } = useSocket();
 
-    const { rooms, users, currentRoom } = state;
+    const { rooms, users, currentRoom, me } = state;
 
     const room = rooms.find(r => r.id === currentRoom);
+    const roomUsersWithoutMe = room.users.filter(uid => uid !== me.id);
 
     return (
         <>
-            <Header>Users ({size(room.users)})</Header>
+            <Header>Users ({roomUsersWithoutMe.length})</Header>
             <SList
                 bordered
-                dataSource={room.users}
+                dataSource={roomUsersWithoutMe}
                 renderItem={userId => {
                     const user = users[userId];
                     return (

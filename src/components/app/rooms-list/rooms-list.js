@@ -8,16 +8,17 @@ const RoomsList = () => {
     const { joinRoomAndNotify } = useActionsNotify();
 
     const { rooms, me } = state;
+    const publicRooms = rooms.filter(room => !room.isPrivate);
 
     return (
         <>
-            <Header>Rooms ({rooms.length})</Header>
+            <Header>Rooms ({publicRooms.length})</Header>
             <SList
                 bordered
-                dataSource={rooms}
+                dataSource={publicRooms}
                 renderItem={room => (
                     <SList.Item>
-                        {room.name}
+                        {`${room.name} ${room.users.length}`}
                         <Button
                             size="small"
                             onClick={() => {

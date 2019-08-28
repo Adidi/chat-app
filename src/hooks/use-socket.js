@@ -18,7 +18,7 @@ const useSocket = () => {
     const on = (eventName, eventCallback) => {
         setEvents({
             ...events,
-            [eventName]: eventCallback,
+            [eventName]: eventCallback
         });
         socket.on(eventName, eventCallback);
     };

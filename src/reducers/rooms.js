@@ -1,6 +1,12 @@
 import shortid from 'shortid';
 import { createReducer } from '@c/util/reducer';
-import { INIT, SEND_MESSAGE, JOIN_ROOM, LEAVE_ROOM } from './actions';
+import {
+    INIT,
+    MESSAGE,
+    JOIN_ROOM,
+    LEAVE_ROOM,
+    START_PRIVATE_CHAT
+} from './actions';
 
 const createMessage = (msg, from) => ({ id: shortid.generate(), msg, from });
 
@@ -14,18 +20,18 @@ export default createReducer({
         return state.map((room, i) => ({
             ...room,
             active: i === 0,
-            messages: [],
+            messages: []
         }));
     },
-    [SEND_MESSAGE](state, action) {
+    [MESSAGE](state, action) {
         return state.map(room => {
             if (action.toRoomId === room.id) {
                 return {
                     ...room,
                     messages: [
                         ...room.messages,
-                        createMessage(action.msg, action.fromUserId),
-                    ],
+                        createMessage(action.msg, action.fromUserId)
+                    ]
                 };
             }
             return room;
@@ -42,8 +48,8 @@ export default createReducer({
                         action.currentUser,
                         room,
                         `${action.user.name} join the room.`,
-                        room.messages,
-                    ),
+                        room.messages
+                    )
                 };
             }
 
@@ -51,22 +57,37 @@ export default createReducer({
         });
     },
     [LEAVE_ROOM](state, action) {
-        return state.map(room => {
-            if (room.id === action.roomId) {
-                return {
-                    ...room,
-                    active: action.currentUser ? false : room.active,
-                    users: room.users.filter(uid => uid !== action.user.id),
-                    messages: joinLeaveCreateMessages(
-                        action.currentUser,
-                        room,
-                        `${action.user.name} left the room.`,
-                        [],
-                    ),
-                };
-            }
+        return state
+            .map(room => {
+                if (room.id === action.roomId) {
+                    return {
+                        ...room,
+                        active: action.currentUser ? false : room.active,
+                        users: room.users.filter(uid => uid !== action.user.id),
+                        messages: joinLeaveCreateMessages(
+                            action.currentUser,
+                            room,
+                            `${action.user.name} left the room.`,
+                            []
+                        )
+                    };
+                }
 
-            return room;
-        });
+                return room;
+            })
+            .filter(room => {
+                // delete if its empty room
+                if (
+                    action.currentUser &&
+                    room.id === action.roomId &&
+                    room.isPrivate
+                ) {
+                    return false;
+                }
+                return true;
+            });
     },
+    [START_PRIVATE_CHAT](state, action) {
+        return [...state, action.room];
+    }
 });

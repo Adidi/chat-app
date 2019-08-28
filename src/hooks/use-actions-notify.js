@@ -2,7 +2,7 @@ import { useSocket, useActions } from '.';
 
 const useActionsNotify = () => {
     const { emit } = useSocket();
-    const { joinRoom, sendMessage, leaveRoom } = useActions();
+    const { joinRoom, message, leaveRoom } = useActions();
 
     return {
         joinRoomAndNotify: (user, roomId) => {
@@ -13,10 +13,10 @@ const useActionsNotify = () => {
             leaveRoom(user, roomId);
             emit('leaveRoom', roomId);
         },
-        sendMessageAndNotify: (fromUserId, toRoomId, msg) => {
-            sendMessage(fromUserId, toRoomId, msg);
+        messageAndNotify: (fromUserId, toRoomId, msg) => {
+            message(fromUserId, toRoomId, msg);
             emit('message', toRoomId, msg);
-        },
+        }
     };
 };
 

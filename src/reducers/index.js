@@ -4,9 +4,10 @@ import {
     NEW_USER,
     USER_DISCONNECT,
     CHANGE_ROOM,
-    SEND_MESSAGE,
+    MESSAGE,
     JOIN_ROOM,
     LEAVE_ROOM,
+    START_PRIVATE_CHAT
 } from './actions';
 import roomsReducer from './rooms';
 import usersReducer from './users';
@@ -15,7 +16,7 @@ export const initialState = {
     currentRoom: null,
     me: null,
     users: {},
-    rooms: [],
+    rooms: []
 };
 
 export default createReducer({
@@ -25,31 +26,31 @@ export default createReducer({
             me,
             users,
             currentRoom: rooms[0].id,
-            rooms: roomsReducer(rooms, action),
+            rooms: roomsReducer(rooms, action)
         };
     },
     [NEW_USER](state, action) {
         return {
             ...state,
-            users: usersReducer(state.users, action),
+            users: usersReducer(state.users, action)
         };
     },
     [USER_DISCONNECT](state, action) {
         return {
             ...state,
-            users: usersReducer(state.users, action),
+            users: usersReducer(state.users, action)
         };
     },
     [CHANGE_ROOM](state, action) {
         return {
             ...state,
-            currentRoom: action.id,
+            currentRoom: action.id
         };
     },
-    [SEND_MESSAGE](state, action) {
+    [MESSAGE](state, action) {
         return {
             ...state,
-            rooms: roomsReducer(state.rooms, action),
+            rooms: roomsReducer(state.rooms, action)
         };
     },
     [JOIN_ROOM](state, action) {
@@ -57,7 +58,7 @@ export default createReducer({
         return {
             ...state,
             currentRoom: action.currentUser ? action.roomId : state.currentRoom,
-            rooms: roomsReducer(state.rooms, action),
+            rooms: roomsReducer(state.rooms, action)
         };
     },
     [LEAVE_ROOM](state, action) {
@@ -69,7 +70,18 @@ export default createReducer({
                 action.currentUser && action.roomId === state.currentRoom
                     ? state.rooms[0].id
                     : state.currentRoom,
-            rooms: roomsReducer(state.rooms, action),
+            rooms: roomsReducer(state.rooms, action)
         };
     },
+    [START_PRIVATE_CHAT](state, action) {
+        return {
+            ...state,
+            // if i am the user started the private chat its need to be the current room immediately
+            currentRoom:
+                action.startedUserId === state.me.id
+                    ? action.room.id
+                    : state.currentRoom,
+            rooms: roomsReducer(state.rooms, action)
+        };
+    }
 });

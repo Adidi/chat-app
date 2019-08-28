@@ -6,6 +6,7 @@ import {
     deleteUser,
     createRoom,
     getUser,
+    addRoom
 } from './data';
 
 const removeUserFromRoomAndNotify = (socket, roomId) => {
@@ -23,10 +24,12 @@ export default (io, socket) => {
 
         socket.broadcast.emit('newUser', user);
 
+        // return to the user only the public rooms
+        const publicRooms = rooms.filter(room => !room.isPrivate);
         callback({
-            rooms,
+            rooms: publicRooms,
             users,
-            me: user,
+            me: user
         });
     });
 
@@ -46,23 +49,31 @@ export default (io, socket) => {
     socket.on('leaveRoom', roomId => {
         socket.leave(roomId);
         removeUserFromRoomAndNotify(socket, roomId);
+
+        console.log(getData());
     });
 
     socket.on('startPrivateChat', withUser => {
         const user = getUser(socket.id);
-        const privateRoom = createRoom('');
-        privateRoom.users.push(withUser.id, socket.id);
+        const privateRoom = createRoom('', true);
+        privateRoom.users.push(withUser.id, user.id);
+        addRoom(privateRoom);
+
         socket.join(privateRoom.id);
+        io.sockets.sockets[withUser.id].join(privateRoom.id);
 
-        console.log(io.sockets.sockets[socket.id] === socket);
-
-        socket.emit('startPrivateChat', {
+        const clientRoom = {
             ...privateRoom,
-            name: `Private - ${withUser.name}`,
+            messages: [],
+            active: true
+        };
+        socket.emit('startPrivateChat', user.id, {
+            ...clientRoom,
+            name: `Private - ${withUser.name}`
         });
-        io.to(withUser.id).emit('joinPrivateChat', {
-            ...privateRoom,
-            name: `Private - ${user.name}`,
+        socket.to(withUser.id).emit('startPrivateChat', user.id, {
+            ...clientRoom,
+            name: `Private - ${user.name}`
         });
     });
 

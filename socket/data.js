@@ -1,20 +1,26 @@
 import shortid from 'shortid';
 
-export const createRoom = name => {
+export const createRoom = (name, isPrivate = false) => {
     const id = shortid.generate();
-    return { id, name, users: [] };
+    return { id, name, users: [], isPrivate };
 };
 
+// user id is the socket id
 const createUser = (id, name) => ({ id, name, rooms: {} });
 
 const users = {};
 const rooms = [
     createRoom('General'),
     createRoom('גייז שמנמנים'),
-    createRoom('סטרייט בסטרייט'),
+    createRoom('סטרייט בסטרייט')
 ];
 
 const getRoom = id => rooms.find(room => room.id === id);
+
+export const deleteRoom = roomId => {
+    const index = rooms.findIndex(room => room.id === roomId);
+    rooms.splice(index, 1);
+};
 
 export const newUser = (id, name) => {
     const user = createUser(id, name);
@@ -35,6 +41,9 @@ export const removeUserFromRoom = (userId, roomId) => {
     const room = getRoom(roomId);
     room.users = room.users.filter(uid => uid !== userId);
     delete user.rooms[roomId];
+    if (room.isPrivate && !room.users.length) {
+        deleteRoom(room.id);
+    }
 };
 
 export const deleteUser = userId => {
@@ -43,7 +52,9 @@ export const deleteUser = userId => {
 
 export const getUser = userId => users[userId];
 
+export const addRoom = room => rooms.push(room);
+
 export const getData = () => ({
     users,
-    rooms,
+    rooms
 });

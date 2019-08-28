@@ -5,17 +5,13 @@ import Layout from './layout';
 
 const App = () => {
     const { on, emit } = useSocket();
-    const {
-        init,
-        newUser,
-        userDisconnect,
-        joinRoom,
-        sendMessage,
-        leaveRoom,
-    } = useActions();
+    const actions = useActions();
     const { joinRoomAndNotify } = useActionsNotify();
     const [state] = useStore();
     const { me } = state;
+    const { init } = actions;
+
+    console.log(state);
 
     useEffect(() => {
         emit('init', randomstring.generate(7), data => {
@@ -27,23 +23,18 @@ const App = () => {
             joinRoomAndNotify(me, roomGeneral.id);
         });
 
-        on('startPrivateChat', data => {
-            console.log('startPrivateChat', data);
-        });
-
-        on('joinPrivateChat', data => {
-            console.log('joinPrivateChat', data);
-        });
-
-        on('newUser', newUser);
-
-        on('joinRoom', joinRoom);
-
-        on('message', sendMessage);
-
-        on('leaveRoom', leaveRoom);
-
-        on('userDisconnect', userDisconnect);
+        // listen to all chat events and trigger action dispatch
+        // that has the same arguments of course as the callback
+        for (const eventName of [
+            'newUser',
+            'joinRoom',
+            'message',
+            'leaveRoom',
+            'userDisconnect',
+            'startPrivateChat'
+        ]) {
+            on(eventName, actions[eventName]);
+        }
     }, []);
 
     if (!me) {

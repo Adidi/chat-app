@@ -5,7 +5,6 @@ import { initSocket } from './socket';
 
 initSocket();
 
-
 ReactDOM.render(<Root />, document.getElementById('root'));
 
 if (module.hot) {

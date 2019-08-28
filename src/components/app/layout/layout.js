@@ -13,7 +13,7 @@ const Layout = () => {
     const [msg, setMsg] = useState('');
     const [state] = useStore();
     const { changeRoom } = useActions();
-    const { sendMessageAndNotify, leaveRoomAndNotify } = useActionsNotify();
+    const { messageAndNotify, leaveRoomAndNotify } = useActionsNotify();
     const { me, currentRoom, rooms } = state;
 
     return (
@@ -57,11 +57,7 @@ const Layout = () => {
                         <Col span={1}>
                             <Button
                                 onClick={() => {
-                                    sendMessageAndNotify(
-                                        me.id,
-                                        currentRoom,
-                                        msg,
-                                    );
+                                    messageAndNotify(me.id, currentRoom, msg);
                                     setMsg('');
                                 }}
                             >

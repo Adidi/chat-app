@@ -3,7 +3,6 @@ import ldReduce from 'lodash/reduce';
 import * as actions from '@c/reducers/actions';
 import useStore from './use-store';
 
-
 const useActions = () => {
     const [, dispatch] = useStore();
 
@@ -17,7 +16,7 @@ const useActions = () => {
 
             return acc;
         },
-        {},
+        {}
     );
 };
 
