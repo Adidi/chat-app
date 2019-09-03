@@ -5,12 +5,12 @@ const useActionsNotify = () => {
     const { joinRoom, message, leaveRoom } = useActions();
 
     return {
-        joinRoomAndNotify: (user, roomId) => {
-            joinRoom(user, roomId);
+        joinRoomAndNotify: (userId, roomId) => {
+            joinRoom(userId, roomId);
             emit('joinRoom', roomId);
         },
-        leaveRoomAndNotify: (user, roomId) => {
-            leaveRoom(user, roomId);
+        leaveRoomAndNotify: (userId, roomId) => {
+            leaveRoom(userId, roomId);
             emit('leaveRoom', roomId);
         },
         messageAndNotify: (fromUserId, toRoomId, msg) => {

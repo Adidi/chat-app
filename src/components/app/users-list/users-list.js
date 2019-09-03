@@ -7,10 +7,10 @@ const UsersList = () => {
     const [state] = useStore();
     const { emit } = useSocket();
 
-    const { rooms, users, currentRoom, me } = state;
+    const { rooms, users, currentRoom, userId } = state;
 
-    const room = rooms.find(r => r.id === currentRoom);
-    const roomUsersWithoutMe = room.users.filter(uid => uid !== me.id);
+    const room = rooms.map[currentRoom];
+    const roomUsersWithoutMe = room.users.filter(uid => uid !== userId);
 
     return (
         <>
@@ -26,7 +26,7 @@ const UsersList = () => {
                             <Button
                                 size="small"
                                 onClick={() => {
-                                    emit('startPrivateChat', user);
+                                    emit('startPrivateChat', user.id);
                                 }}
                             >
                                 Private

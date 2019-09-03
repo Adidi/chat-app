@@ -17,8 +17,16 @@ export const message = (fromUserId, toRoomId, msg) => ({
     toRoomId,
     msg
 });
-export const joinRoom = (user, roomId) => ({ type: JOIN_ROOM, user, roomId });
-export const leaveRoom = (user, roomId) => ({ type: LEAVE_ROOM, user, roomId });
+export const joinRoom = (userId, roomId) => ({
+    type: JOIN_ROOM,
+    userId,
+    roomId
+});
+export const leaveRoom = (userId, roomId) => ({
+    type: LEAVE_ROOM,
+    userId,
+    roomId
+});
 export const startPrivateChat = (startedUserId, room) => ({
     type: START_PRIVATE_CHAT,
     startedUserId,

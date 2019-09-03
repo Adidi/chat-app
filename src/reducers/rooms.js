@@ -17,11 +17,17 @@ const joinLeaveCreateMessages = (currentUser, room, msg, defaultValue) => {
 
 export default createReducer({
     [INIT](state, action) {
-        return state.map((room, i) => ({
-            ...room,
-            active: i === 0,
-            messages: []
-        }));
+        return {
+            ...state,
+            map: state.ids.reduce((map, id, i) => {
+                map[id] = {
+                    ...state.map[id],
+                    active: i === 0,
+                    messages: []
+                };
+                return map;
+            }, {})
+        };
     },
     [MESSAGE](state, action) {
         return state.map(room => {
@@ -38,23 +44,29 @@ export default createReducer({
         });
     },
     [JOIN_ROOM](state, action) {
-        return state.map(room => {
-            if (room.id === action.roomId) {
-                return {
-                    ...room,
-                    active: action.currentUser ? true : room.active,
-                    users: [...room.users, action.user.id],
-                    messages: joinLeaveCreateMessages(
-                        action.currentUser,
-                        room,
-                        `${action.user.name} join the room.`,
-                        room.messages
-                    )
-                };
-            }
+        return {
+            ...state,
+            map: state.ids.reduce((map, id) => {
+                const room = state.map[id];
+                if (room.id === action.roomId) {
+                    map[id] = {
+                        ...room,
+                        active: action.currentUser ? true : room.active,
+                        users: [...room.users, action.userId],
+                        messages: joinLeaveCreateMessages(
+                            action.currentUser,
+                            room,
+                            `${action.user.name} join the room.`,
+                            room.messages
+                        )
+                    };
+                } else {
+                    map[id] = room;
+                }
 
-            return room;
-        });
+                return map;
+            }, {})
+        };
     },
     [LEAVE_ROOM](state, action) {
         return state
@@ -76,7 +88,7 @@ export default createReducer({
                 return room;
             })
             .filter(room => {
-                // delete if its empty room
+                // delete if its private room and me is leaving it
                 if (
                     action.currentUser &&
                     room.id === action.roomId &&

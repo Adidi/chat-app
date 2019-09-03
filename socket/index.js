@@ -1,63 +1,55 @@
 import {
-    getData,
+    getInitClientData,
     newUser,
-    addUserToRoom,
-    removeUserFromRoom,
+    joinRoom,
+    leaveRoom,
     deleteUser,
-    createRoom,
     getUser,
     addRoom
 } from './data';
 
-const removeUserFromRoomAndNotify = (socket, roomId) => {
-    removeUserFromRoom(socket.id, roomId);
+const leaveRoomAndNotify = (socket, roomId) => {
+    leaveRoom(socket.id, roomId);
     // notify to all about leave room except sender
-    socket.broadcast.emit('leaveRoom', getUser(socket.id), roomId);
+    socket.broadcast.emit('leaveRoom', socket.id, roomId);
 };
 
 export default (io, socket) => {
     console.log(`${socket.id} connected...`);
 
     socket.on('init', (name, callback) => {
-        const { rooms, users } = getData();
-        const user = newUser(socket.id, name);
+        const me = newUser(socket.id, name);
 
-        socket.broadcast.emit('newUser', user);
+        socket.broadcast.emit('newUser', me.id);
 
-        // return to the user only the public rooms
-        const publicRooms = rooms.filter(room => !room.isPrivate);
-        callback({
-            rooms: publicRooms,
-            users,
-            me: user
-        });
+        console.log(getInitClientData(me.id));
+
+        callback(getInitClientData(me.id));
     });
 
     socket.on('message', (roomId, msg) => {
-        // notify all about new message except sender
+        // notify all in that room about new message except sender
         socket.to(roomId).send(socket.id, roomId, msg);
     });
 
     socket.on('joinRoom', roomId => {
         socket.join(roomId);
-        addUserToRoom(socket.id, roomId);
+        joinRoom(socket.id, roomId);
 
         // notify to all about join room except sender
-        socket.broadcast.emit('joinRoom', getUser(socket.id), roomId);
+        socket.broadcast.emit('joinRoom', socket.id, roomId);
     });
 
     socket.on('leaveRoom', roomId => {
         socket.leave(roomId);
-        removeUserFromRoomAndNotify(socket, roomId);
-
-        console.log(getData());
+        leaveRoomAndNotify(socket, roomId);
     });
 
-    socket.on('startPrivateChat', withUser => {
-        const user = getUser(socket.id);
-        const privateRoom = createRoom('', true);
-        privateRoom.users.push(withUser.id, user.id);
-        addRoom(privateRoom);
+    socket.on('startPrivateChat', withUserId => {
+        const me = getUser(socket.id);
+        const withUser = getUser(withUserId);
+        const privateRoom = addRoom('', true);
+        privateRoom.users.push(me.id, withUser.id);
 
         socket.join(privateRoom.id);
         io.sockets.sockets[withUser.id].join(privateRoom.id);
@@ -67,13 +59,13 @@ export default (io, socket) => {
             messages: [],
             active: true
         };
-        socket.emit('startPrivateChat', user.id, {
+        socket.emit('startPrivateChat', me.id, {
             ...clientRoom,
             name: `Private - ${withUser.name}`
         });
-        socket.to(withUser.id).emit('startPrivateChat', user.id, {
+        socket.to(withUser.id).emit('startPrivateChat', me.id, {
             ...clientRoom,
-            name: `Private - ${user.name}`
+            name: `Private - ${me.name}`
         });
     });
 
@@ -81,7 +73,7 @@ export default (io, socket) => {
         const user = getUser(socket.id);
         if (user) {
             Object.keys(user.rooms).forEach(roomId => {
-                removeUserFromRoomAndNotify(socket, roomId);
+                leaveRoomAndNotify(socket, roomId);
             });
         }
 

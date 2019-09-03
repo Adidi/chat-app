@@ -8,19 +8,18 @@ const App = () => {
     const actions = useActions();
     const { joinRoomAndNotify } = useActionsNotify();
     const [state] = useStore();
-    const { me } = state;
+    const { userId } = state;
     const { init } = actions;
 
     console.log(state);
 
     useEffect(() => {
         emit('init', randomstring.generate(7), data => {
-            const { me, rooms } = data;
-            const roomGeneral = rooms[0];
-
+            const { userId, rooms } = data;
+            const roomGeneralId = rooms.ids[0];
             init(data);
             // join general room from client!
-            joinRoomAndNotify(me, roomGeneral.id);
+            joinRoomAndNotify(userId, roomGeneralId);
         });
 
         // listen to all chat events and trigger action dispatch
@@ -37,7 +36,7 @@ const App = () => {
         }
     }, []);
 
-    if (!me) {
+    if (!userId) {
         return null;
     }
 

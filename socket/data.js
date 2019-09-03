@@ -1,6 +1,14 @@
 import shortid from 'shortid';
 
-export const createRoom = (name, isPrivate = false) => {
+const data = {
+    users: {},
+    rooms: {
+        map: {},
+        ids: []
+    }
+};
+
+const createRoom = (name, isPrivate = false) => {
     const id = shortid.generate();
     return { id, name, users: [], isPrivate };
 };
@@ -8,53 +16,68 @@ export const createRoom = (name, isPrivate = false) => {
 // user id is the socket id
 const createUser = (id, name) => ({ id, name, rooms: {} });
 
-const users = {};
-const rooms = [
-    createRoom('General'),
-    createRoom('גייז שמנמנים'),
-    createRoom('סטרייט בסטרייט')
-];
+export const getRoom = id => data.rooms.map[id];
+export const getUser = id => data.users[id];
 
-const getRoom = id => rooms.find(room => room.id === id);
-
-export const deleteRoom = roomId => {
-    const index = rooms.findIndex(room => room.id === roomId);
-    rooms.splice(index, 1);
+const deleteRoom = id => {
+    delete data.rooms.map[id];
 };
 
 export const newUser = (id, name) => {
     const user = createUser(id, name);
-    users[user.id] = user;
+    data.users[user.id] = user;
     return user;
 };
 
-export const addUserToRoom = (userId, roomId) => {
-    const user = users[userId];
+export const joinRoom = (userId, roomId) => {
+    const user = getUser(userId);
     const room = getRoom(roomId);
     room.users.push(userId);
     // add to rooms array for easy access when deleting user
     user.rooms[roomId] = true;
 };
 
-export const removeUserFromRoom = (userId, roomId) => {
-    const user = users[userId];
+export const leaveRoom = (userId, roomId) => {
+    const user = getUser(userId);
     const room = getRoom(roomId);
     room.users = room.users.filter(uid => uid !== userId);
     delete user.rooms[roomId];
+
     if (room.isPrivate && !room.users.length) {
         deleteRoom(room.id);
     }
 };
 
 export const deleteUser = userId => {
-    delete users[userId];
+    delete data.users[userId];
 };
 
-export const getUser = userId => users[userId];
+export const addRoom = (name, isPrivate = false) => {
+    const room = createRoom(name, isPrivate);
+    data.rooms.map[room.id] = room;
+    data.rooms.ids.push(room.id);
+    return room;
+};
 
-export const addRoom = room => rooms.push(room);
+export const getData = () => data;
 
-export const getData = () => ({
-    users,
-    rooms
-});
+export const getInitClientData = userId => {
+    const { rooms, users } = data;
+    const publicRoomsIds = rooms.ids.filter(id => !rooms.map[id].isPrivate);
+    return {
+        userId,
+        users,
+        // return to the user only the public rooms:
+        rooms: {
+            map: publicRoomsIds.reduce((map, id) => {
+                map[id] = rooms.map[id];
+                return map;
+            }, {}),
+            ids: publicRoomsIds
+        }
+    };
+};
+
+addRoom('General');
+addRoom('גייז שמנמנים');
+addRoom('סטרייט בסטרייט');

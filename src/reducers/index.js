@@ -14,18 +14,21 @@ import usersReducer from './users';
 
 export const initialState = {
     currentRoom: null,
-    me: null,
+    userId: null,
     users: {},
-    rooms: []
+    rooms: {
+        map: {},
+        ids: []
+    }
 };
 
 export default createReducer({
     [INIT](state, action) {
-        const { me, users, rooms } = action.data;
+        const { userId, users, rooms } = action.data;
         return {
-            me,
+            userId,
             users,
-            currentRoom: rooms[0].id,
+            currentRoom: rooms.ids[0],
             rooms: roomsReducer(rooms, action)
         };
     },
@@ -54,7 +57,8 @@ export default createReducer({
         };
     },
     [JOIN_ROOM](state, action) {
-        action.currentUser = action.user.id === state.me.id;
+        action.user = state.users[action.userId];
+        action.currentUser = action.userId === state.userId;
         return {
             ...state,
             currentRoom: action.currentUser ? action.roomId : state.currentRoom,
@@ -62,7 +66,7 @@ export default createReducer({
         };
     },
     [LEAVE_ROOM](state, action) {
-        action.currentUser = action.user.id === state.me.id;
+        action.currentUser = action.userId === state.userId;
         return {
             ...state,
             // check if the room we are leaving is the one that is current

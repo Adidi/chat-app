@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Tabs, Button, Input, Row, Col } from 'antd';
 import { useStore, useActions, useActionsNotify } from '@c/hooks';
+import { getActiveRooms, getMe } from '@c/selectors';
 import UsersList from '../users-list';
 import RoomsList from '../rooms-list';
 import ChatRoom from '../chat/chat-room';
@@ -14,7 +15,10 @@ const Layout = () => {
     const [state] = useStore();
     const { changeRoom } = useActions();
     const { messageAndNotify, leaveRoomAndNotify } = useActionsNotify();
-    const { me, currentRoom, rooms } = state;
+    const { currentRoom } = state;
+
+    const activeRooms = getActiveRooms(state);
+    const me = getMe(state);
 
     return (
         <AppLayout>
@@ -28,21 +32,19 @@ const Layout = () => {
                         onChange={changeRoom}
                         onEdit={(roomId, action) => {
                             if (action === 'remove') {
-                                leaveRoomAndNotify(me, roomId);
+                                leaveRoomAndNotify(me.id, roomId);
                             }
                         }}
                     >
-                        {rooms
-                            .filter(room => room.active)
-                            .map((room, i) => (
-                                <TabPane
-                                    closable={i !== 0}
-                                    tab={room.name}
-                                    key={room.id}
-                                >
-                                    <ChatRoom room={room} />
-                                </TabPane>
-                            ))}
+                        {activeRooms.map((room, i) => (
+                            <TabPane
+                                closable={i !== 0}
+                                tab={room.name}
+                                key={room.id}
+                            >
+                                <ChatRoom room={room} />
+                            </TabPane>
+                        ))}
                     </Tabs>
                 </Content>
                 <Footer>
